@@ -4,8 +4,6 @@ import httpx
 from bs4 import BeautifulSoup
 from pyppeteer import launch
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
 async def get_video_src(page, url):
     await page.goto(url)
     await page.waitForSelector('video', {'timeout': 60000})
