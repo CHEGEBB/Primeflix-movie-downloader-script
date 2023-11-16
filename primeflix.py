@@ -1,65 +1,51 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
-import time
+import os
+import asyncio
+import httpx
+from bs4 import BeautifulSoup
+from pyppeteer import launch
 
-def initialize_browser(driver_path):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--window-size=1366x768")
-    chrome_options.add_argument("--disable-notifications")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--dns-prefetch-disable")
-    return webdriver.Chrome(executable_path=driver_path, options=chrome_options)
+# Set the event loop policy to fix the deprecation warning
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-def search_for_movie(browser, movie_title):
-    search_box = browser.find_element("xpath", '//*[@id="search"]')
-    search_box.send_keys(movie_title)
-    search_box.send_keys(Keys.RETURN)
-    time.sleep(2)  # Allow time for the search results to load
+async def get_video_src(page, url):
+    await page.goto(url)
+    await page.waitForSelector('video', {'timeout': 60000})
+    video_src = await page.evaluate('''() => {
+        const video = document.querySelector('video');
+        return video ? video.src : null;
+    }''')
+    return video_src
 
-def download_movie(browser, download_link, count):
-    # Implement your download logic here
-    pass
+async def download_media(media_url, media_type='mega'):
+    # Provide the path to the Chromium executable
+    browser = await launch(executablePath=r'C:\Users\brian\Downloads\Compressed\chrome-win64\chrome-win64\chrome.exe')
+    page = await browser.newPage()
+
+    try:
+        video_src = await get_video_src(page, media_url)
+
+        if video_src:
+            media_title = media_url.split('/')[-1]
+            download_dir = os.path.join(os.path.expanduser('~'), 'Downloads', media_type)
+            os.makedirs(download_dir, exist_ok=True)
+
+            filename = os.path.join(download_dir, f"{media_title}.mp4")
+
+            async with httpx.AsyncClient() as client:
+                response = await client.get(video_src)
+                if response.status_code == 200:
+                    with open(filename, 'wb') as f:
+                        f.write(response.content)
+                    print(f"{media_type.capitalize()} '{media_title}' downloaded successfully to {filename}.")
+                else:
+                    print(f"Failed to download {media_type} '{media_title}'. Error: {response.status_code}")
+
+    finally:
+        await browser.close()
+
+async def main():
+    media_url = input("Enter the URL of the movie or series to download: ")
+    await download_media(media_url)
 
 if __name__ == "__main__":
-    driver_path = r'C:\Users\brian\Downloads\Compressed\chromedriver-win64\chromedriver.exe'
-    browser = initialize_browser(driver_path)
-
-    # Prompt the user to enter the movie title they want to search
-    movie_title = input("Enter the name of the movie: ")
-    
-    # Use Selenium to perform the search
-    browser.get("https://www.goojara.to/")
-    search_for_movie(browser, movie_title)
-
-    # Extract and print the search results (for demonstration purposes)
-    search_results = browser.find_elements("xpath", '//div[@class="movie-box"]//a[@class="title"]')
-    if not search_results:
-        print("No results found.")
-    else:
-        print("Search Results:")
-        for i, result in enumerate(search_results, start=1):
-            print(f"{i}. {result.text}")
-
-        # Allow the user to choose a movie to download
-        choice = input("Enter the number of the movie you want to download: ")
-        try:
-            choice = int(choice)
-            if 1 <= choice <= len(search_results):
-                # Click on the selected movie to go to its page
-                selected_movie = search_results[choice - 1]
-                selected_movie.click()
-                
-                # Implement your download logic for the selected movie
-                download_link = browser.find_element("xpath", '//*[@id="download"]')
-                download_movie(browser, download_link, count=1)
-            else:
-                print("Invalid choice. Please enter a valid number.")
-        except ValueError:
-            print("Invalid input. Please enter a number.")
-        finally:
-            browser.quit()
+    asyncio.run(main())
