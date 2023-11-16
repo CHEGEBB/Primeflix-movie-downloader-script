@@ -1,80 +1,87 @@
 import os
-import asyncio
-import httpx
+import requests
 from bs4 import BeautifulSoup
-from pyppeteer import launch
+import webbrowser
 
-async def get_video_src(page, url):
-    await page.goto(url)
-    await page.waitForSelector('video', {'timeout': 60000})
-    video_src = await page.evaluate('''() => {
-        const video = document.querySelector('video');
-        return video ? video.src : null;
-    }''')
-    return video_src
+# Function to display welcome message
+def display_welcome():
+    print("Welcome to Super Lazy Lads Movie Downloader!")
+    print("Avoiding annoying pop-up ads. Enjoy the movies!\n")
 
-async def download_media(media_title, media_type='mega'):
-    # First, try Goojara
-    goojar_url = f'https://www.goojara.to/search/{media_title.replace(" ", "%20")}'
-    await download_from_site(goojar_url, media_title, media_type)
+# Function to search for movies and handle missing search results
+def search_for_movies():
+    while True:
+        movie_name = input("Enter the movie name: ")
+        if movie_name:
+            return movie_name
 
-async def download_from_site(site_url, media_title, media_type='mega'):
-    browser = await launch()  # No need to specify executablePath for default browser
-    page = await browser.newPage()
-
-    try:
-        video_src = await get_video_src(page, site_url)
-
-        if video_src:
-            download_dir = os.path.join(os.path.expanduser('~'), 'Downloads', media_type)
-            os.makedirs(download_dir, exist_ok=True)
-
-            filename = os.path.join(download_dir, f"{media_title}.mp4")
-
-            async with httpx.AsyncClient() as client:
-                response = await client.get(video_src)
-                if response.status_code == 200:
-                    with open(filename, 'wb') as f:
-                        f.write(response.content)
-                    print(f"[INFO] {media_type.capitalize()} '{media_title}' downloaded successfully to {filename}.")
-                else:
-                    print(f"[ERROR] Failed to download {media_type} '{media_title}'. Error: {response.status_code}")
-        else:
-            print(f"[INFO] Goojara did not have '{media_title}'. Trying MobileTVShows.net.")
-
-            # Now try MobileTVShows.net
-            mobiletvshows_url = f'https://www.mobiletvshows.net/search/{media_title.replace(" ", "+")}.html'
-            await download_from_site(mobiletvshows_url, media_title, media_type)
-
-    finally:
-        await browser.close()
-
-async def main():
-    print("Welcome to PrimeFlix - Your number one place to download movies and TV series easily.")
+# Function to display search results and handle user selection
+def display_and_select_movies(movies_info):
+    for index, movie_info in enumerate(movies_info):
+        print(f"{index}: {movie_info.text}")
 
     while True:
-        print("\nMenu:")
-        print("1. Enter Movie Title")
-        print("2. Enter Series Title")
-        print("3. Enter Movie URL")
-        print("4. Exit")
+        try:
+            choice = int(input("Choose a movie: "))
+            if 0 <= choice < len(movies_info):
+                return choice
+        except ValueError:
+            pass
 
-        choice = input("Enter your choice (1-4): ")
+# Function to get movie links and display quality options
+def get_and_display_movie_links(movie_links):
+    for index, link in enumerate(movie_links):
+        print(f"{index}: {link}")
+    
+    while True:
+        try:
+            quality = input("Choose quality: ")
+            if quality.isdigit() and 0 <= int(quality) < len(movie_links):
+                return int(quality)
+        except ValueError:
+            pass
 
-        if choice == '1':
-            media_title = input("Enter the movie title: ")
-            await download_media(media_title)
-        elif choice == '2':
-            media_title = input("Enter the series title: ")
-            await download_media(media_title)
-        elif choice == '3':
-            media_url = input("Enter the movie URL: ")
-            await download_media(media_url)
-        elif choice == '4':
-            print("Exiting PrimeFlix. Goodbye!")
+# Function to download the selected movie
+def download_movie(selected_link):
+    webbrowser.open(selected_link)
+
+# Main script logic
+def main():
+    display_welcome()
+
+    # Handling missing search results
+    while True:
+        movie_name = search_for_movies()
+        search_link = f"https://mycima.cloud/search/{'+'.join(movie_name.split())}"
+        result = requests.get(search_link)
+        soup = BeautifulSoup(result.content, "html.parser")
+        movies_info = soup.find_all("div", {"class": "Thumb--GridItem"})
+
+        if movies_info:
             break
-        else:
-            print("Invalid choice. Please enter a valid option.")
+        print("No such movie found. Please try again.")
+
+    # Handling single or multiple search results
+    if len(movies_info) > 1:
+        chosen_index = display_and_select_movies(movies_info)
+        chosen_movie = movies_info[chosen_index]
+        link = chosen_movie.find("a").attrs['href']
+    else:
+        link = movies_info[0].find("a").attrs['href']
+
+    # Opening movie link
+    result = requests.get(link)
+    soup = BeautifulSoup(result.content, "html.parser")
+    movies = soup.find_all("a", {"class": "hoverable activable"})
+    
+    # Getting movie links for each movie
+    movie_links = [movie['href'] for movie in movies if "upbaam" in movie['href']]
+
+    # Listing movie links according to quality
+    quality_choice = get_and_display_movie_links(movie_links)
+
+    # Downloading the selected movie
+    download_movie(movie_links[quality_choice])
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
