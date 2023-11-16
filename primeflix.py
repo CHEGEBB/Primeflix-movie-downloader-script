@@ -4,7 +4,6 @@ import httpx
 from bs4 import BeautifulSoup
 from pyppeteer import launch
 
-# Set the event loop policy to fix the deprecation warning
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def get_video_src(page, url):
@@ -17,8 +16,7 @@ async def get_video_src(page, url):
     return video_src
 
 async def download_media(media_url, media_type='mega'):
-    # Provide the path to the Chromium executable
-    browser = await launch(executablePath=r'C:\Users\brian\Downloads\Compressed\chrome-win64\chrome-win64\chrome.exe')
+    browser = await launch()  # No need to specify executablePath for default browser
     page = await browser.newPage()
 
     try:
@@ -44,8 +42,33 @@ async def download_media(media_url, media_type='mega'):
         await browser.close()
 
 async def main():
-    media_url = input("Enter the URL of the movie or series to download: ")
-    await download_media(media_url)
+    print("Welcome to PrimeFlix - Your number one place to download movies and TV series easily.")
+    
+    while True:
+        print("\nMenu:")
+        print("1. Enter Movie Title")
+        print("2. Enter Series Title")
+        print("3. Enter Movie URL")
+        print("4. Exit")
+        
+        choice = input("Enter your choice (1-4): ")
+        
+        if choice == '1':
+            media_title = input("Enter the movie title: ")
+            media_url = f'https://www.goojara.to/search/{media_title.replace(" ", "%20")}'
+            await download_media(media_url)
+        elif choice == '2':
+            media_title = input("Enter the series title: ")
+            media_url = f'https://www.goojara.to/search/{media_title.replace(" ", "%20")}'
+            await download_media(media_url)
+        elif choice == '3':
+            media_url = input("Enter the movie URL: ")
+            await download_media(media_url)
+        elif choice == '4':
+            print("Exiting PrimeFlix. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please enter a valid option.")
 
 if __name__ == "__main__":
     asyncio.run(main())
