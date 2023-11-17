@@ -12,8 +12,8 @@ Webbrowser
 ## Installation 🚀
 ## Clone the Repository:
 
-  git clone https://github.com/CHEGEBB/Primeflix-movie-downloader-script
-  cd Primeflix
+  # git clone https://github.com/CHEGEBB/Primeflix-movie-downloader-script
+  # cd Primeflix
 ## Install Dependancies:
  pip install -r requirements.txt
 ## Run the Script:
