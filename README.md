@@ -17,4 +17,5 @@ Webbrowser
  git clone https://github.com/YOUR-USERNAME/Primeflix.git
 
  cd Primeflix
+## Install Dependencies:
 
