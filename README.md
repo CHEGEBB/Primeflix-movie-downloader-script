@@ -10,3 +10,7 @@ Beautiful Soup
 Requests
 Webbrowser
 ## Installation 🚀
+
+$ git clone https://github.com/YOUR-USERNAME/Primeflix.git
+$ cd Primeflix
+
