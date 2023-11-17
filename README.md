@@ -11,12 +11,12 @@ Requests
 Webbrowser
 ## Installation 🚀
 ## Clone the Repository:
+ ``bash
+   git clone https://github.com/YOUR-USERNAME/Primeflix.git
+   cd Primefl
+## Install Dependancies
 
-```b`ash
-
- git clone https://github.com/YOUR-USERNAME/Primeflix.git
- cd Primeflix
 
  
-## Install Dependencies:
+
 
