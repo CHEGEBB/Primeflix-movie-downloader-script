@@ -26,7 +26,7 @@ Enter the requested details and enjoy your entertainment!
   Primeflix will handle the rest, providing you with a seamless streaming or downloading experience.
 
 ## Author 👨‍💻
-Written by CHEGEBB. Connect with me on GitHub.
+Written by CHEGEBB. Connect with me on GitHub(https://github.com/CHEGEBB)
 
 ## Issues and Contributions 🤝
 If you encounter any issues or have suggestions, feel free to open an issue or create a pull request. Your feedback is highly appreciated!
