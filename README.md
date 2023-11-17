@@ -18,7 +18,7 @@ Webbrowser
 ## Install Dependancies:
  pip install -r requirements.txt
 ## Run the Script:
-python primeflix.py
+python primeflix.py<br>
 Follow the On-screen Instructions:
 
 ## Choose your option (1, 2, or 3) for Series, Movie, or Downloading a whole season.
