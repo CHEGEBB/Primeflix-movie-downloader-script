@@ -11,9 +11,9 @@ Requests
 Webbrowser
 ## Installation 🚀
 ## Clone the Repository:
- 
+ ```bash
   git clone https://github.com/YOUR-USERNAME/Primeflix.git
-  cd Primefl
+  cd Primeflix
 ## Install Dependancies:
  pip install -r requirements.txt
 ## Run the Script:
