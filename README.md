@@ -5,19 +5,28 @@ Primeflix is your go-to solution for hassle-free movie and series streaming and 
 ## Requirements 🛠️
 Before you start, make sure you have the following requirements installed check out the installation process below:
 
-Python (3.x recommended)
-Beautiful Soup
-Requests
-Webbrowser
+Python (3.x recommended)<br>
+Beautiful Soup<br>
+Requests<br>
+Webbrowser<br>
 ## Installation 🚀
 ## Clone the Repository:
-
+```bash
   git clone https://github.com/CHEGEBB/Primeflix-movie-downloader-script<br>
-  
+```
+## install python
+```
+ sudo apt install python3
+```
+```bash
   cd Primeflix-movie-downloader-script
+```
+  
 
 ## Install Dependancies:
+```bash
  pip install -r requirements.txt
+```
 ## Run the Script:
 python primeflix.py<br>
 Follow the On-screen Instructions:
