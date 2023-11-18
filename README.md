@@ -28,7 +28,9 @@ Webbrowser<br>
  pip install -r requirements.txt
 ```
 ## Run the Script:
-python primeflix.py<br>
+```bash
+python primeflix.py
+```
 Follow the On-screen Instructions:
 
 ## Choose your option (1, 2, or 3) for Series, Movie, or Downloading a whole season.
