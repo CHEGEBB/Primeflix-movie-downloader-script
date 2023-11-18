@@ -1,2 +1,6 @@
 beautifulsoup4==4.10.0
 requests==2.26.0
+urllib3==1.26.6
+chardet==5.0.0
+charset_normalizer==2.0.0
+
