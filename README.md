@@ -29,7 +29,7 @@ Webbrowser<br>
 ```
 ## Run the Script:
 ```bash
-python primeflix.py
+python3 primeflix.py
 ```
 Follow the On-screen Instructions:
 
