@@ -3,4 +3,5 @@ requests==2.26.0
 urllib3==1.26.6
 chardet==5.0.0
 charset_normalizer==2.0.0
-
+colorama==0.4.4
+rich==10.10.0
