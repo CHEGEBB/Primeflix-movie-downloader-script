@@ -12,7 +12,7 @@ Webbrowser<br>
 ## Installation 🚀
 ## Clone the Repository:
 ```bash
-  git clone https://github.com/CHEGEBB/Primeflix-movie-downloader-script<br>
+  git clone https://github.com/CHEGEBB/Primeflix-movie-downloader-script
 ```
 ## install python
 ```
