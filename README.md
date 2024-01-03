@@ -67,15 +67,16 @@ Make sure you have PowerShell installed on your system.
 
 3. **Run the Script:**
 
+
     ```powershell
     .\primeflix.ps1
     ```
 
-4. **Follow the On-screen Instructions:**
+5. **Follow the On-screen Instructions:**
 
     - Choose your option (1, 2, 3, or 4) for Movie, TV Series, Links to other download sites, or Exit.
 
-5. **Sit Back and Relax:**
+6. **Sit Back and Relax:**
 
     Primeflix will handle the rest, providing you with a seamless streaming or downloading experience.
 
@@ -90,6 +91,10 @@ Make sure you have Bash installed on your system.
 1. **Open Terminal:**
 
 2. **Run the Script:**
+    ## Make script executable
+   ```bash
+   chmod u+x ./primeflix.sh
+   ```
 
     ```bash
     ./primeflix.sh
@@ -99,7 +104,7 @@ Make sure you have Bash installed on your system.
 
     - Choose your option (1, 2, 3, or 4) for Movie, TV Series, Links to other download sites, or Exit.
 
-4. **Sit Back and Relax:**
+5. **Sit Back and Relax:**
 
     Primeflix will handle the rest, providing you with a seamless streaming or downloading experience.
 
