@@ -1,178 +1,98 @@
-import requests
-from bs4 import BeautifulSoup
+import os
 import webbrowser
-import sys
+import time
+from colorama import init, Fore, Style
+from bs4 import BeautifulSoup
+import requests
 
-def print_header():
-  print("""
- 
- 
-  ____      ____                  __  __  U _____ u     _____    _                   __  __      
-U|  _"\ uU |  _"\ u     ___     U|' \/ '|u\| ___"|/    |" ___|  |"|        ___       \ \/"/      
-\| |_) |/ \| |_) |/    |_"_|    \| |\/| |/ |  _|" U  uU| |_  uU | | u     |_"_|      /\  /\      
- |  __/    |  _ <       | |      | |  | |  | |___ /___\|  _|/  \| |/__     | |      U /  \ u     
- |_|       |_| \_\    U/| |\u    |_|  |_|  |_____|__"__|_|      |_____|  U/| |\u     /_/\_\      
- ||>>_     //   \\_.-,_|___|_,-.<<,-,,-.   <<   >>     )(\\,-   //  \\.-,_|___|_,-.,-,>> \\_     
-(__)__)   (__)  (__)\_)-' '-(_/  (./  \.) (__) (__)   (__)(_/  (_")("_)\_)-' '-(_/  \_)  (__)    
+init(autoreset=True)  # Initialize colorama
 
-          Written by:CHEGEBB 
- """ )
+def print_color(text, color=Fore.WHITE, style=Style.NORMAL):
+    print(f"{color}{style}{text}{Style.RESET_ALL}")
 
-def get_user_option():
+def show_banner():
+    banner = """
+__________        .__                        ___________.__  .__        
+\______   \_______|__| _____   ____          \_   _____/|  | |__|__  ___
+ |     ___/\_  __ \  |/     \_/ __ \   ______ |    __)  |  | |  \  \/  /
+ |    |     |  | \/  |  Y Y  \  ___/  /_____/ |     \   |  |_|  |>    < 
+ |____|     |__|  |__|__|_|  /\___  >         \___  /   |____/__/__/\_ \\
+                           \/     \/              \/                  \/
+"""
+    print_color(banner, Fore.GREEN)
+
+def search_content(content_type):
     while True:
-        try:
-            option = int(input("\nWhat do you want to watch? (Enter 1, 2, or 3)\n"
-                               "1- Series\n"
-                               "2- Movie\n"
-                               "3- Download a whole season\n"))
-            if 3 >= option >= 1:
-                return option
-            else:
-                print("Please enter 1, 2, or 3")
-        except ValueError:
-            print("Invalid input. Please enter a number.")
+        content_name = input(f"Enter the {content_type} name: ")
+        if content_name.strip() != "":
+            break
+        print_color("Invalid input. Please enter a valid name.", Fore.RED)
 
-def get_user_series_name():
-    return input("Enter the movie or series name: ").strip()
+    name_query = "+".join(content_name.split())
+    result = requests.get(f"https://mycima.cloud/search/{name_query}")
+    src = result.content
+    soup = BeautifulSoup(src, "html.parser")
 
-def print_series_options(recommended_series):
-    print("Which series do you want to watch?")
-    for idx, series in enumerate(recommended_series, start=1):
-        title = series.find("a").get("title", f"Series {idx}")
-        print(f"{idx}. {title}")
-
-def get_user_selected_series(recommended_series):
-    while True:
-        try:
-            series_number = int(input("Enter the number corresponding to your wanted series: "))
-            if 1 <= series_number <= len(recommended_series):
-                return series_number
-            else:
-                print("Invalid selection. Please enter a valid number.")
-        except ValueError:
-            print("Invalid input. Please enter a number.")
-
-def get_user_selected_season(seasons_links):
-    while True:
-        try:
-            season_number = int(input(f"There are {len(seasons_links)} Seasons. Enter your desired season number: "))
-            if 1 <= season_number <= len(seasons_links):
-                return season_number
-            else:
-                print("Invalid selection. Please enter a valid number.")
-        except ValueError:
-            print("Invalid input. Please enter a number.")
-
-def get_user_selected_episodes(episodes_links):
-    while True:
-        try:
-            print(f"There are {len(episodes_links)} episodes")
-            ep1 = int(input("Enter episode number (from): "))
-            ep2 = int(input("Enter episode number (to): "))
-            if 1 <= ep1 <= len(episodes_links) and 1 <= ep2 <= len(episodes_links) and ep1 <= ep2:
-                return ep1, ep2
-            else:
-                print("Invalid selection. Please enter valid episode numbers.")
-        except ValueError:
-            print("Invalid input. Please enter numbers.")
-
-def main():
-    print_header()
-    option = get_user_option()
-
-    if option == 1:  # Watch a series
-        series_name = get_user_series_name()
-        html_page = requests.get(f"https://mycima.tube/search/{series_name}/list/series")
-        soup = BeautifulSoup(html_page.content, "lxml")
-        recommended_series = soup.find_all("div", {"class": "Thumb--GridItem"})
-
-        print_series_options(recommended_series)
-        series_number = get_user_selected_series(recommended_series)
-
-        html_page = requests.get(recommended_series[series_number - 1].find("a").get("href"))
-        soup = BeautifulSoup(html_page.content, "lxml")
-        temp_list = soup.find("div", {"class": "List--Seasons--Episodes"})
-
-        if temp_list is None:
-            temp_list = soup.find("div", {"class": "Seasons--Episodes"})
-        seasons_links = temp_list.findAll("a")
-        season_number = get_user_selected_season(seasons_links)
-
-        html_page = requests.get(seasons_links[season_number - 1].get("href"))
-        soup = BeautifulSoup(html_page.content, "lxml")
-        temp_list = soup.find("div", {"class": "Episodes--Seasons--Episodes"})
-        episodes_links = temp_list.findAll("a")
-        episodes_links.reverse()
-
-        ep1, ep2 = get_user_selected_episodes(episodes_links)
-
-        for episode_number in range(ep2, ep1 - 1, -1):
-            html_page = requests.get(episodes_links[episode_number - 1].get("href"))
-            soup = BeautifulSoup(html_page.content, "lxml")
-            link = soup.find("iframe", {"name": "watch"})
-            watching_link = link.get("data-lazy-src")
-            result = requests.get(watching_link)
-            webbrowser.open(watching_link)
-
-    elif option == 2:  # Watch a movie
-        movie_name = get_user_series_name()
-        html_page = requests.get(f"https://mycima.tube/search/{movie_name}")
-        soup = BeautifulSoup(html_page.content, "lxml")
-        recommended_movies = soup.find_all("div", {"class": "Thumb--GridItem"})
-
-        print_series_options(recommended_movies)
-        movie_number = get_user_selected_series(recommended_movies)
-        movie_link = recommended_movies[movie_number - 1].find("a").get("href")
-
-        html_page = requests.get(movie_link)
-        soup = BeautifulSoup(html_page.content, "lxml")
-        link = soup.find("iframe", {"name": "watch"})
-        watching_link = link.get("data-lazy-src")
-        webbrowser.open(watching_link)
-
-    else:  # Download a whole season
-        series_name = get_user_series_name()
-        series_name = series_name.replace(" ", "-")
-        season_number = int(input("Enter Season number: "))
-
-        urls = [
-            f"https://mycima.tube/series/{series_name}-%d9%85%d9%88%d8%b3%d9%85-{season_number}-",
-            f"https://mycima.tube/series/%D9%85%D9%88%D8%B3%D9%85-{season_number}-%D9%85%D8%B3%D9%84%D8%B3%D9%84-{series_name}",
-            f"https://mycima.tube/series/%d9%85%d9%88%d8%b3%d9%85-{season_number}-{series_name}",
-            f"https://mycima.tube/series/{series_name}-%d9%85%d9%88%d8%b3%d9%85-{season_number}",
-        ]
-
-        for url in urls:
-            html_page = requests.get(url)
-            if html_page.status_code != 404:
-                break
-
-        soup = BeautifulSoup(html_page.content, "lxml")
-        x = soup.find('ul', {'class': "Season--Download--Mycima--Single"})
-
-        if x is None:
-            input(f"This feature is not available for {series_name} season {season_number}! \nPress any key to exit")
-            sys.exit()
-
-        temp = x.findAll("a")
-        qualities = soup.find_all("resolution")
-        links = [i.get("href") for i in temp]
-
-        for idx, quality in enumerate(qualities, start=1):
-            print(f"{idx}- {quality.text}")
+    content_info = soup.find_all("div", {"class": "Thumb--GridItem"})
+    
+    if len(content_info) == 0:
+        print_color(f"No matching {content_type} found. Please try again.", Fore.RED)
+        return None
+    
+    if len(content_info) > 1:
+        for index, content in enumerate(content_info):
+            print_color(f"{index}: {content.text}", Fore.CYAN)
 
         while True:
             try:
-                quality_number = int(input("Enter your desired quality: "))
-                if 1 <= quality_number <= len(qualities):
-                    webbrowser.open(links[quality_number - 1])
-                    break
+                choice = int(input(f"Choose a {content_type} by entering its index: "))
+                if 0 <= choice < len(content_info):
+                    return content_info[choice].find("a").attrs['href']
                 else:
-                    print("Invalid selection. Please enter a valid number.")
+                    print_color("Invalid choice. Please enter a valid index.", Fore.RED)
             except ValueError:
-                print("Invalid input. Please enter a number.")
+                print_color("Invalid input. Please enter a number.", Fore.RED)
+    else:
+        return content_info[0].find("a").attrs['href']
 
-        input("Enter any key to exit: ")
+def main():
+    show_banner()
+    print_color("Welcome to Primeflix - Created by CHEGEBB", Fore.GREEN)
+
+    while True:
+        print("\nChoose what to download:")
+        print_color("1. Movie", Fore.YELLOW)
+        print_color("2. TV Series", Fore.YELLOW)
+        print_color("3. Links to other download sites (Coming Soon)", Fore.YELLOW)
+        print_color("4. Exit", Fore.RED)
+
+        choice = input("Enter your choice: ")
+
+        if choice == "1":
+            movie_link = search_content("movie")
+
+            if movie_link is not None:
+                print_color("Opening movie link...", Fore.GREEN)
+                time.sleep(1)  # Simulate delay for animation
+                webbrowser.open(movie_link)
+            else:
+                print_color("No valid download links found for the selected movie.", Fore.RED)
+        elif choice == "2":
+            series_link = search_content("TV series")
+
+            if series_link is not None:
+                print_color("Opening TV series link...", Fore.GREEN)
+                time.sleep(1)  # Simulate delay for animation
+                webbrowser.open(series_link)
+            else:
+                print_color("No valid download links found for the selected TV series.", Fore.RED)
+        elif choice == "3":
+            print_color("Links to other download sites functionality coming soon!", Fore.BLUE)
+        elif choice == "4":
+            print_color("Thank you for using Primeflix. Goodbye!", Fore.GREEN)
+            break
+        else:
+            print_color("Invalid choice. Please enter a valid option.", Fore.RED)
 
 if __name__ == "__main__":
     main()
