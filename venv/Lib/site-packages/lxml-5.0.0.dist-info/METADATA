@@ -1,0 +1,160 @@
+Metadata-Version: 2.1
+Name: lxml
+Version: 5.0.0
+Summary: Powerful and Pythonic XML processing library combining libxml2/libxslt with the ElementTree API.
+Home-page: https://lxml.de/
+Author: lxml dev team
+Author-email: lxml-dev@lxml.de
+Maintainer: lxml dev team
+Maintainer-email: lxml-dev@lxml.de
+License: BSD-3-Clause
+Project-URL: Source, https://github.com/lxml/lxml
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Information Technology
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Cython
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: C
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Text Processing :: Markup :: HTML
+Classifier: Topic :: Text Processing :: Markup :: XML
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, != 3.4.*
+License-File: LICENSE.txt
+License-File: LICENSES.txt
+Provides-Extra: cssselect
+Requires-Dist: cssselect >=0.7 ; extra == 'cssselect'
+Provides-Extra: html5
+Requires-Dist: html5lib ; extra == 'html5'
+Provides-Extra: htmlsoup
+Requires-Dist: BeautifulSoup4 ; extra == 'htmlsoup'
+Provides-Extra: source
+Requires-Dist: Cython >=3.0.7 ; extra == 'source'
+
+lxml is a Pythonic, mature binding for the libxml2 and libxslt libraries.  It
+provides safe and convenient access to these libraries using the ElementTree
+API.
+
+It extends the ElementTree API significantly to offer support for XPath,
+RelaxNG, XML Schema, XSLT, C14N and much more.
+
+To contact the project, go to the `project home page
+<https://lxml.de/>`_ or see our bug tracker at
+https://launchpad.net/lxml
+
+In case you want to use the current in-development version of lxml,
+you can get it from the github repository at
+https://github.com/lxml/lxml .  Note that this requires Cython to
+build the sources, see the build instructions on the project home
+page.  To the same end, running ``easy_install lxml==dev`` will
+install lxml from
+https://github.com/lxml/lxml/tarball/master#egg=lxml-dev if you have
+an appropriate version of Cython installed.
+
+
+After an official release of a new stable series, bug fixes may become
+available at
+https://github.com/lxml/lxml/tree/lxml-5.0 .
+Running ``easy_install lxml==5.0bugfix`` will install
+the unreleased branch state from
+https://github.com/lxml/lxml/tarball/lxml-5.0#egg=lxml-5.0bugfix
+as soon as a maintenance branch has been established.  Note that this
+requires Cython to be installed at an appropriate version for the build.
+
+5.0.0 (2023-12-29)
+==================
+
+Features added
+--------------
+
+* Character escaping in ``C14N2`` serialisation now uses a single pass over the text
+  instead of searching for each unescaped character separately.
+
+* Early support for Python 3.13a2 was added.
+
+Bugs fixed
+----------
+
+* LP#1976304: The ``Element.addnext()`` method previously inserted the new element
+  before existing tail text.  The tail text of both sibling elements now stays on
+  the respective elements.
+
+* LP#1980767, GH#379: ``TreeBuilder.close()`` could fail with a ``TypeError`` after
+  parsing incorrect input.  Original patch by Enrico Minack.
+
+* ``Element.itertext(with_tail=False)`` returned the tail text of comments and
+  processing instructions, despite the explicit option.
+
+* GH#370: A crash with recent libxml2 2.11.x versions was resolved.
+  Patch by Michael Schlenker.
+
+* A compile problem with recent libxml2 2.12.x versions was resolved.
+
+* The internal exception handling in C callbacks was improved for Cython 3.0.
+
+* The exception declarations of ``xmlInputReadCallback``, ``xmlInputCloseCallback``,
+  ``xmlOutputWriteCallback`` and ``xmlOutputCloseCallback`` in ``tree.pxd`` were
+  corrected to prevent running Python code or calling into the C-API with a live
+  exception set.
+
+* GH#385: The long deprecated ``unittest.m̀akeSuite()`` function is no longer used.
+  Patch by Miro Hrončok.
+
+* LP#1522052: A file-system specific test is now optional and should no longer fail
+  on systems that don't support it.
+
+* GH#392: Some tests were adapted for libxml2 2.13.
+  Patch by Nick Wellnhofer.
+
+* Contains all fixes from lxml 4.9.4.
+
+Other changes
+-------------
+
+* LP#1742885: lxml no longer expands external entities (XXE) by default to prevent
+  the security risk of loading arbitrary files and URLs.  If this feature is needed,
+  it can be enabled in a backwards compatible way by using a parser with the option
+  ``resolve_entities=True``.  The new default is ``resolve_entities='internal'``.
+
+* With libxml2 2.10.4 and later (as provided by the lxml 5.0 binary wheels),
+  parsing HTML tags with "prefixes" no longer builds a namespace dictionary
+  in ``nsmap`` but considers the ``prefix:name`` string the actual tag name.
+  With older libxml2 versions, since 2.9.11, the prefix was removed.  Before
+  that, the prefix was parsed as XML prefix.
+
+  lxml 5.0 does not try to hide this difference but now changes the ElementPath
+  implementation to let ``element.find("part1:part2")`` search for the tag
+  ``part1:part2`` in documents parsed as HTML, instead of looking only for ``part2``.
+
+* LP#2024343: The validation of the schema file itself is now optional in the
+  ISO-Schematron implementation.  This was done because some lxml distributions
+  discard the RNG validation schema file due to licensing issues.  The validation
+  can now always be disabled with ``Schematron(..., validate_schema=False)``.
+  It is enabled by default if available and disabled otherwise.  The module
+  constant ``lxml.isoschematron.schematron_schema_valid_supported`` can be used
+  to detect whether schema file validation is available.
+
+* Some redundant and long deprecated methods were removed:
+  ``parser.setElementClassLookup()``,
+  ``xslt_transform.apply()``,
+  ``xpath.evaluate()``.
+
+* Some incorrect declarations were removed from ``python.pxd``. In general, this file
+  should not be used by external Cython code. Use the C-API declarations provided by
+  Cython itself instead.
+
+* Binary wheels use the library versions libxml2 2.12.3 and libxslt 1.1.39.
+
+* Built with Cython 3.0.7, updated to follow recent changes in Cython 3.1-dev.
+
+

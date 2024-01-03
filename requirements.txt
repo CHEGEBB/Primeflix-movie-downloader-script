@@ -5,3 +5,7 @@ chardet==5.0.0
 charset_normalizer==2.0.0
 colorama==0.4.4
 rich==10.10.0
+<<<<<<< HEAD
+
+=======
+>>>>>>> 07dccf353670f857c0d08b1ea408d5c84d62a849
